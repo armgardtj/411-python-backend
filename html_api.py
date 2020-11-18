@@ -24,25 +24,27 @@ def create_account():
     name = request.forms.get('name')
     password = request.forms.get('password')
     if not email or not name or not password:
-        return
+        return "failed"
     portfolio_id = random.randint(0, 255)
     while portfolio_id in portfolioSet:
         portfolio_id = random.randint(0, 255)
     portfolioSet.add(portfolio_id)
     sql.insert_userdata(email, name, password, portfolio_id)
+    return "success"
 
 
 @delete("/account")
 def delete_account():
     email = request.forms.get('email')
     if not email:
-        return
+        return "failed"
     accounts = sql.query_userdata(email)
     for account in accounts:
         portfolioId = account[3]
         portfolioSet.remove(portfolioId)
         sql.delete_portfolio(portfolioId)
     sql.delete_userdata(email)
+    return "success"
 
 
 @get("/portfolio/<id>")
