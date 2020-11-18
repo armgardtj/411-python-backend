@@ -32,6 +32,7 @@ def db_init():
     # view stocks page: list all tickers in portfolio, add/remove tickers
     # chart page: show historical stock data and news articles
 
+
 def db_fake_insert():
     cur.execute("INSERT INTO userdata VALUES (\'test1@email\', \'name\', \'pass\', 1)")
     cur.execute("INSERT INTO userdata VALUES (\'test2@email\', \'nam2\', \'pass2\', 2)")
@@ -166,7 +167,8 @@ def query_newsdata_by_ticker(ticker):
 
 
 def insert_newsdata(articleID, title, contents, articleDate, positivity, ticker):
-    values = "(" + str(articleID) + ",\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
+    values = "(" + str(
+        articleID) + ",\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
     cur.execute("INSERT INTO newsdata VALUES " + values)
     cur.execute("SELECT * FROM newsdata")
     for x in cur:

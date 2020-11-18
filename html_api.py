@@ -49,11 +49,8 @@ def delete_account():
 def get_stocks_in_portfolio(id):
     portfolio = sql.query_portfolio(id)
     print(portfolio)
-    for stock in portfolio:
-        ticker = stock[1]
-        print(sql.query_stockinfo(ticker))
-        print(sql.query_stockprice(ticker))
-    # send response
+    for entry in portfolio:
+        yield str.encode(entry[1] + "\n")
 
 
 @get("/stocks")
@@ -62,9 +59,16 @@ def get_ticker():
     print(ticker)
     stock_info = sql.query_stockinfo(ticker)
     stock_data = sql.query_stockprice(ticker)
-    print(stock_info)
-    print(stock_data)
-    # send response
+    d = {'stock-info': {
+        'ticker': stock_info[0][0],
+        'company-name': stock_info[0][1],
+        'market-cap': stock_info[0][2]
+    },
+        'stock-data': {}}
+    for data in stock_data:
+        time = data[5].strftime("%Y-%m-%d")
+        d['stock-data'][time] = {'open': data[1], 'close': data[2], 'low': data[3], 'high': data[4]}
+    return d
 
 
 run(host='localhost', port=8080)
