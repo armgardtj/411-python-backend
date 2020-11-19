@@ -1,4 +1,5 @@
-from bottle import route, run, template, request, post, get, delete, put
+from bottle import route, run, template, request, post, get, delete, put, response
+import json
 import sql
 import random
 
@@ -24,53 +25,108 @@ def create_account():
     name = request.forms.get('name')
     password = request.forms.get('password')
     if not email or not name or not password:
-        return "failed"
+        response.status = 400
+        return
     portfolio_id = random.randint(0, 255)
     while portfolio_id in portfolioSet:
         portfolio_id = random.randint(0, 255)
     portfolioSet.add(portfolio_id)
     sql.insert_userdata(email, name, password, portfolio_id)
-    return "success"
 
 
 @delete("/account")
 def delete_account():
     email = request.forms.get('email')
     if not email:
-        return "failed"
+        response.status = 400
+        return
     accounts = sql.query_userdata(email)
     for account in accounts:
         portfolioId = account[3]
         portfolioSet.remove(portfolioId)
         sql.delete_portfolio(portfolioId)
     sql.delete_userdata(email)
-    return "success"
 
 
 @get("/portfolio/<id>")
-def get_stocks_in_portfolio(id):
-    portfolio = sql.query_portfolio(id)
-    print(portfolio)
-    for entry in portfolio:
-        yield str.encode(entry[1] + "\n")
+def get_portfolio_data(id):
+    portfolio = sql.query_stockprice_by_portfolio(id)
+    body = []
+    for e in portfolio:
+        body.append({
+            'ticker': e[0],
+            'company-name': e[1],
+            'market-cap': e[2],
+            'open': e[3],
+            'close': e[4],
+            'low': e[5],
+            'high': e[6],
+            'date': e[7].strftime("%Y-%m-%d"),
+        })
+    response.body = json.dumps(body)
+
+
+@put("/portfolio/<id>")
+def add_ticker_to_portfolio(id):
+    ticker = request.params.get('ticker')
+    sql.insert_portfolio(id, ticker)
+
+
+@delete("/portfolio/<id>")
+def remove_ticker_from_portfolio(id):
+    ticker = request.params.get('ticker')
+    sql.delete_ticker_from_portfolio(id, ticker)
 
 
 @get("/stocks")
-def get_ticker():
-    ticker = request.params.get('ticker')
-    print(ticker)
-    stock_info = sql.query_stockinfo(ticker)
-    stock_data = sql.query_stockprice(ticker)
-    d = {'stock-info': {
-        'ticker': stock_info[0][0],
-        'company-name': stock_info[0][1],
-        'market-cap': stock_info[0][2]
-    },
-        'stock-data': {}}
-    for data in stock_data:
-        time = data[5].strftime("%Y-%m-%d")
-        d['stock-data'][time] = {'open': data[1], 'close': data[2], 'low': data[3], 'high': data[4]}
-    return d
+def get_stockinfo():
+    tickers = sql.query_all_tickers()
+    body = []
+    for e in tickers:
+        body.append(e[0])
+    response.body = json.dumps(body)
+    return response
+
+
+@get("/stocks/<ticker>")
+def get_stockprice(ticker):
+    info = sql.query_stockinfo(ticker)
+    prices = sql.query_stockprice(ticker)
+    print(info)
+    print(prices)
+    body = {
+        'ticker': info[0][0],
+        'company-name': info[0][1],
+        'market-cap': info[0][2],
+        'data': []
+    }
+    for e in prices:
+        body['data'].append({
+            'open': e[1],
+            'close': e[2],
+            'low': e[3],
+            'high': e[4],
+            'date': e[5].strftime("%Y-%m-%d"),
+        })
+    response.body = json.dumps(body)
+    return response
+
+
+@get("/articles")
+def get_articles():
+    articles = sql.query_all_articles()
+    body = []
+    for e in articles:
+        body.append({
+            'articleID': e[0],
+            'title': e[1],
+            'contents': e[2],
+            'date': e[3].strftime("%Y-%m-%d"),
+            'positivity': e[4],
+            'ticker': e[5],
+        })
+    response.body = json.dumps(body)
+    return response
 
 
 run(host='localhost', port=8080)

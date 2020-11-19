@@ -56,6 +56,9 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (2, \'MSFT\')")
     cur.execute("INSERT INTO portfolio VALUES (2, \'GOOG\')")
 
+    cur.execute("INSERT INTO newsdata VALUES (0,\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
+    cur.execute("INSERT INTO newsdata VALUES (1,\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
+
 
 def query_userdata(email):
     condition = "email=\'" + email + "\'"
@@ -160,12 +163,6 @@ def query_newsdata(articleID):
     return cur.fetchall()
 
 
-def query_newsdata_by_ticker(ticker):
-    condition = "ticker=\'" + ticker + "\'"
-    cur.execute("SELECT * FROM newsdata WHERE " + ticker)
-    return cur.fetchall()
-
-
 def insert_newsdata(articleID, title, contents, articleDate, positivity, ticker):
     values = "(" + str(
         articleID) + ",\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
@@ -179,6 +176,38 @@ def delete_newsdata(articleID):
     condition = "articleID=" + str(articleID) + ""
     cur.execute("DELETE FROM newsdata WHERE " + condition)
     cur.execute("SELECT * FROM newsdata")
+    for x in cur:
+        print(x)
+
+
+def query_stockprice_by_portfolio(portfolioID):
+    select = "i.ticker, i.companyName, i.marketCap, sp.open, sp.close, sp.low, sp.high, sp.priceDate"
+    db = "portfolio p LEFT JOIN stockinfo i ON p.stockTicker = i.ticker LEFT JOIN stockprice sp ON i.ticker = sp.ticker"
+    condition = "portfolioID=" + str(portfolioID) + ""
+    cur.execute("SELECT " + select + " FROM " + db + " WHERE " + condition)
+    return cur.fetchall()
+
+
+def query_all_tickers():
+    cur.execute("SELECT ticker FROM stockinfo")
+    return cur.fetchall()
+
+
+def query_all_articles():
+    cur.execute("SELECT * FROM newsdata")
+    return cur.fetchall()
+
+
+def query_newsdata_by_ticker(ticker):
+    condition = "ticker=\'" + ticker + "\'"
+    cur.execute("SELECT * FROM newsdata WHERE " + ticker)
+    return cur.fetchall()
+
+
+def delete_ticker_from_portfolio(portfolioID, ticker):
+    condition = "portfolioID=" + str(portfolioID) + " AND stockTicker=\'" + ticker + "\'"
+    cur.execute("DELETE FROM portfolio WHERE " + condition)
+    cur.execute("SELECT * FROM portfolio")
     for x in cur:
         print(x)
 
