@@ -2,6 +2,7 @@ from bottle import route, run, template, request, post, get, delete, put, respon
 import json
 import sql
 import random
+import datetime
 
 portfolioSet = set()
 articleSet = set()
@@ -26,12 +27,13 @@ def create_account():
     password = request.forms.get('password')
     if not email or not name or not password:
         response.status = 400
-        return
+        return response
     portfolio_id = random.randint(0, 255)
     while portfolio_id in portfolioSet:
         portfolio_id = random.randint(0, 255)
     portfolioSet.add(portfolio_id)
     sql.insert_userdata(email, name, password, portfolio_id)
+    return response
 
 
 @delete("/account")
@@ -46,11 +48,13 @@ def delete_account():
         portfolioSet.remove(portfolioId)
         sql.delete_portfolio(portfolioId)
     sql.delete_userdata(email)
+    return response
 
 
 @get("/portfolio/<id>")
-def get_portfolio_data(id):
-    portfolio = sql.query_stockprice_by_portfolio(id)
+def get_portfolio_data_by_date(id):
+    date = request.params.get('date')
+    portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
     body = []
     for e in portfolio:
         body.append({
@@ -64,18 +68,21 @@ def get_portfolio_data(id):
             'date': e[7].strftime("%Y-%m-%d"),
         })
     response.body = json.dumps(body)
+    return response
 
 
 @put("/portfolio/<id>")
 def add_ticker_to_portfolio(id):
     ticker = request.params.get('ticker')
     sql.insert_portfolio(id, ticker)
+    return response
 
 
 @delete("/portfolio/<id>")
 def remove_ticker_from_portfolio(id):
     ticker = request.params.get('ticker')
     sql.delete_ticker_from_portfolio(id, ticker)
+    return response
 
 
 @get("/stocks")
@@ -92,8 +99,6 @@ def get_stockinfo():
 def get_stockprice(ticker):
     info = sql.query_stockinfo(ticker)
     prices = sql.query_stockprice(ticker)
-    print(info)
-    print(prices)
     body = {
         'ticker': info[0][0],
         'company-name': info[0][1],

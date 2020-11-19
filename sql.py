@@ -180,10 +180,10 @@ def delete_newsdata(articleID):
         print(x)
 
 
-def query_stockprice_by_portfolio(portfolioID):
+def query_stockprice_by_portfolio_by_date(portfolioID, date):
     select = "i.ticker, i.companyName, i.marketCap, sp.open, sp.close, sp.low, sp.high, sp.priceDate"
     db = "portfolio p LEFT JOIN stockinfo i ON p.stockTicker = i.ticker LEFT JOIN stockprice sp ON i.ticker = sp.ticker"
-    condition = "portfolioID=" + str(portfolioID) + ""
+    condition = "portfolioID=" + str(portfolioID) + " AND sp.priceDate=\'" + date + "\'"
     cur.execute("SELECT " + select + " FROM " + db + " WHERE " + condition)
     return cur.fetchall()
 
