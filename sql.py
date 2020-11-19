@@ -200,7 +200,7 @@ def query_all_articles():
 
 def query_newsdata_by_ticker(ticker):
     condition = "ticker=\'" + ticker + "\'"
-    cur.execute("SELECT * FROM newsdata WHERE " + ticker)
+    cur.execute("SELECT * FROM newsdata WHERE " + condition)
     return cur.fetchall()
 
 
@@ -210,6 +210,10 @@ def delete_ticker_from_portfolio(portfolioID, ticker):
     cur.execute("SELECT * FROM portfolio")
     for x in cur:
         print(x)
+
+def query_stockprice_dates():
+    cur.execute("SELECT DISTINCT priceDate FROM stockprice ORDER BY priceDate DESC")
+    return cur.fetchall()
 
 
 db_tear()

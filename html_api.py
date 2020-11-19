@@ -54,6 +54,8 @@ def delete_account():
 @get("/portfolio/<id>")
 def get_portfolio_data_by_date(id):
     date = request.params.get('date')
+    if date is None:
+        date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
     portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
     body = []
     for e in portfolio:
