@@ -73,7 +73,7 @@ def get_portfolio_data_by_date(id):
     return response
 
 
-@put("/portfolio/<id>")
+@get("/portfolio/<id>/add")
 def add_ticker_to_portfolio(id):
     ticker = request.params.get('ticker')
     sql.insert_portfolio(id, ticker)
@@ -95,7 +95,7 @@ def add_ticker_to_portfolio(id):
     return response
 
 
-@delete("/portfolio/<id>")
+@get("/portfolio/<id>/delete")
 def remove_ticker_from_portfolio(id):
     ticker = request.params.get('ticker')
     sql.delete_ticker_from_portfolio(id, ticker)
