@@ -77,6 +77,21 @@ def get_portfolio_data_by_date(id):
 def add_ticker_to_portfolio(id):
     ticker = request.params.get('ticker')
     sql.insert_portfolio(id, ticker)
+    date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
+    portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
+    body = []
+    for e in portfolio:
+        body.append({
+            'ticker': e[0],
+            'company-name': e[1],
+            'market-cap': e[2],
+            'open': e[3],
+            'close': e[4],
+            'low': e[5],
+            'high': e[6],
+            'date': e[7].strftime("%Y-%m-%d"),
+        })
+    response.body = json.dumps(body)
     return response
 
 
@@ -84,6 +99,21 @@ def add_ticker_to_portfolio(id):
 def remove_ticker_from_portfolio(id):
     ticker = request.params.get('ticker')
     sql.delete_ticker_from_portfolio(id, ticker)
+    date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
+    portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
+    body = []
+    for e in portfolio:
+        body.append({
+            'ticker': e[0],
+            'company-name': e[1],
+            'market-cap': e[2],
+            'open': e[3],
+            'close': e[4],
+            'low': e[5],
+            'high': e[6],
+            'date': e[7].strftime("%Y-%m-%d"),
+        })
+    response.body = json.dumps(body)
     return response
 
 
