@@ -4,6 +4,8 @@ import sql
 import random
 import datetime
 
+from news_api import getDate as getNewsData
+
 portfolioSet = set()
 articleSet = set()
 frontend_port = 8090
@@ -165,5 +167,40 @@ def get_articles():
     response.body = json.dumps(body)
     return response
 
+@get("/articles/<ticker>")
+def get_articles(ticker, startDate, endDate):
+    # query the database for news articles in the date range
+    articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
+    # if the list is empty, then we have to query the news api and get the data
+    if len(articles) == 0:
+        # do api query
+        newsApiData = getNewsData(ticker, startDate, endDate)
+        # insert each result into the articles table
+        for article in newsApiData:
+            sql.insert_newsdata(article[0], article[1], article[2], article[3], article[4])
+        # return the articles
+        response.body = json.dumps(newsApiData)
+        return response
+
+    else:
+        # check the dates of the first and last articles in the returned list
+        # double check that element at idx 3 is actally the date
+        startDateArticle = articles[0][3]
+        endDateArticle   = articles[-1][3]
+        if startDateArticle != startDate:
+            # pull the data in date range [startDate, startDateArticle]
+            newsApiData = getNewsData(ticker, startDate, startDateArticle)
+            for article in newsApiData:
+                sql.insert_newsdata(article[0], article[1], article[2], article[3], article[4])
+                articles.append(article)
+        if endDateArticle != endDate:
+            # pull the data in date range [endDateArticle, endDate]
+            newsApiData = getNewsData(ticker, endDateArticle, endDate)
+            for article in newsApiData:
+                sql.insert_newsdata(article[0], article[1], article[2], article[3], article[4])
+                articles.append(article)
+                
+        response.body = json.dumps(articles)
+        return response
 
 run(host='localhost', port=8080)

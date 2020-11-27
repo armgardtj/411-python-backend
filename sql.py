@@ -20,7 +20,7 @@ def db_tear():
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (articleID INT(255), title VARCHAR(255), contents TEXT(65535), articleDate DATE, positivity INT(255), ticker VARCHAR(10), PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (articleID INT(255) NOT NULL AUTO_INCREMENT, title VARCHAR(255), contents TEXT(65535), articleDate DATE, positivity INT(255), ticker VARCHAR(10), PRIMARY KEY (articleID))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
@@ -163,9 +163,8 @@ def query_newsdata(articleID):
     return cur.fetchall()
 
 
-def insert_newsdata(articleID, title, contents, articleDate, positivity, ticker):
-    values = "(" + str(
-        articleID) + ",\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
+def insert_newsdata(title, contents, articleDate, positivity, ticker):
+    values = "(\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
     cur.execute("INSERT INTO newsdata VALUES " + values)
     cur.execute("SELECT * FROM newsdata")
     for x in cur:
@@ -203,6 +202,10 @@ def query_newsdata_by_ticker(ticker):
     cur.execute("SELECT * FROM newsdata WHERE " + condition)
     return cur.fetchall()
 
+def query_newsdata_by_ticker_and_date(ticker, startDate, endDate):
+    condition = "ticker=\'" + ticker + "\' AND articleDate BETWEEN \'" + startDate +"\' AND \'" + endDate + "\' "
+    cur.execute("SELECT * FROM newsdata WHERE " + condition + " ORDER BY articleDate")
+    return cur.fetchall()
 
 def delete_ticker_from_portfolio(portfolioID, ticker):
     condition = "portfolioID=" + str(portfolioID) + " AND stockTicker=\'" + ticker + "\'"

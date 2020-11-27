@@ -9,6 +9,9 @@ from nltk.sentiment.util import *
 from nltk.tokenize import treebank
 
 def getData(ticker, startDate, endDate):
+    if ticker == None or startDate == None or endDate == None:
+        raise Exception("One of the parameters to this function is None.")
+        
     url = ('https://newsapi.org/v2/everything?'
     'q='+ticker+
     '&apiKey=9c5df86e319b4acba568a959e37fd639')
@@ -25,7 +28,14 @@ def getData(ticker, startDate, endDate):
         publishedAt = article['publishedAt']
         link = article['url']
         text = article['content']
-        sentiment = evaluate_sentence(text)
+        try:
+            sentiment = evaluate_sentence(text)
+        except Exception as e:
+            print(e)
+            print("You dont have the opinion_lexicon downloaded, so I'll just do that for you.")
+            print(" -Danny")
+            nltk.download('opinion_lexicon')
+            sentiment = evaluate_sentence(text)
 
         to_table = {
                 'title' : title,
@@ -38,9 +48,7 @@ def getData(ticker, startDate, endDate):
         # exit()
     return all_articles
     # Insert code that pushes all_articles out to the database
-
     # post[article['url']] = {'title': article['title'], 'text': article['content'], 'articleDate': article['publishedAt'], 'positivity': 0}
-
     #p_url = "http://localhost:8080/article"
     #header = {"content-type": "application/json"}
     #p_response = requests.post(p_url,data=json.dumps(post), headers=header, verify=False)
@@ -64,11 +72,13 @@ def evaluate_sentence(sentence):
     elif pos_words == neg_words:
         return "Neutral"
 
-# nltk.download('opinion_lexicon')
-ticker = "AAPL"
-startDate = "2020-10-05"
-endDate = "2020-11-04"
-data_return = getData(ticker, startDate, endDate)
-print(data_return)
-print('--------------------------------------------------------------------------------------------------------')
-print(data_return[0])
+
+
+if __name__ == '__main__':
+    ticker = "AAPL"
+    startDate = "2020-10-05"
+    endDate = "2020-11-04"
+    data_return = getData(ticker, startDate, endDate)
+    print(data_return)
+    print('--------------------------------------------------------------------------------------------------------')
+    print(data_return[0])
