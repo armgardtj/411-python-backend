@@ -8,10 +8,20 @@ from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import *
 from nltk.tokenize import treebank
 
+# This code is shoving the positive and negative words list into a dictionary
+# since we can get O(1) runtime on checking if an element exists in a dict.
+# the 'in' keyword traverses things as linked lists has has O(n) runtime on checking
+# if elements exist.
+positive_words = {}
+negative_words = {}
+for word in opinion_lexicon.positive():
+    positive_words[word] = 1
+for word in opinion_lexicon.negative():
+    negative_words[word] = 1
 def getData(ticker, startDate, endDate):
     if ticker == None or startDate == None or endDate == None:
         raise Exception("One of the parameters to this function is None.")
-        
+
     url = ('https://newsapi.org/v2/everything?'
     'q='+ticker+
     '&apiKey=9c5df86e319b4acba568a959e37fd639')
@@ -20,6 +30,7 @@ def getData(ticker, startDate, endDate):
 
     all_articles_from_api = d['articles']
     # print("-------------------------------------------------------------------")
+    progress = 0.0
     all_articles = []
     for article in all_articles_from_api:
         publisher = article['source']['name']
@@ -45,6 +56,9 @@ def getData(ticker, startDate, endDate):
                 'sentiment' : sentiment
         }
         all_articles.append(to_table)
+
+        progress+= 1
+        print(100*progress/len(all_articles_from_api))
         # exit()
     return all_articles
     # Insert code that pushes all_articles out to the database
@@ -60,10 +74,18 @@ def evaluate_sentence(sentence):
     tokenized_sent = [word.lower() for word in tokenizer.tokenize(sentence)]
 
     for word in tokenized_sent:
-        if word in opinion_lexicon.positive():
-            pos_words += 1
-        elif word in opinion_lexicon.negative():
-            neg_words += 1
+        try:
+            pos_words += positive_words[word]
+        except:
+            pass
+        try:
+            neg_words += negative_words[word]
+        except:
+            pass
+        # if word in opinion_lexicon.positive():
+        #     pos_words += 1
+        # elif word in opinion_lexicon.negative():
+        #     neg_words += 1
 
     if pos_words > neg_words:
         return "Positive"
@@ -77,7 +99,7 @@ def evaluate_sentence(sentence):
 if __name__ == '__main__':
     ticker = "AAPL"
     startDate = "2020-10-05"
-    endDate = "2020-11-04"
+    endDate = "2020-10-15"
     data_return = getData(ticker, startDate, endDate)
     print(data_return)
     print('--------------------------------------------------------------------------------------------------------')

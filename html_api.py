@@ -199,7 +199,7 @@ def get_articles(ticker, startDate, endDate):
             for article in newsApiData:
                 sql.insert_newsdata(article[0], article[1], article[2], article[3], article[4])
                 articles.append(article)
-                
+
         response.body = json.dumps(articles)
         return response
 
