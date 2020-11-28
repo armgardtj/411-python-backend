@@ -53,9 +53,32 @@ def delete_account():
     sql.delete_userdata(email)
     return response
 
+@get("/account")
+def login_to_account():
+    # this function logs the user in and returns their portfolio IDs
+    # the user should only have one portfolio ID, but it returns all in the event there are several
+    # after this is called, the /portfolio/<id> endpoint should be called to return the tickers
+    email = request.forms.get('email')
+    password = request.forms.get('password')
+    if not email or not password:
+        response.status = 400
+        return
+    accounts = sql.query_login_info(email, password)
+    if len(accounts) == 0:
+        response.status = 400
+        return
+    body = []
+    for account in accounts:
+        body.append(account[3])
+    response.body = json.dumps(body)
+    return response
+
 
 @get("/portfolio/<id>")
 def get_portfolio_data_by_date(id):
+    # this function returns the tickers for a given portfolio ID
+    # you may provide a date for the tickers you want to retrieve
+    # if no date is given, the most recent date in the database is used
     date = request.params.get('date')
     if date is None:
         date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")

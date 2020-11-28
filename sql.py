@@ -222,6 +222,10 @@ def query_stockprice_dates():
     cur.execute("SELECT DISTINCT priceDate FROM stockprice ORDER BY priceDate DESC")
     return cur.fetchall()
 
+def query_login_info(email, password):
+    condition = "email=\'" + email + "\' AND password=\'" + password + "\'"
+    cur.execute("SELECT * FROM userdata WHERE " + condition)
+    return cur.fetchall()
 
 db_tear()
 db_init()
