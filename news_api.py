@@ -20,7 +20,7 @@ for word in opinion_lexicon.negative():
     negative_words[word] = 1
 
 
-    
+
 def getData(ticker, startDate, endDate):
     print("Querying NewsApi Endpoint for Data")
     if ticker == None or startDate == None or endDate == None:
@@ -52,6 +52,18 @@ def getData(ticker, startDate, endDate):
             nltk.download('opinion_lexicon')
             sentiment = evaluate_sentence(text)
 
+        # before we insert as a row, replace all of the double quote apostophes in title and text as single quote
+        # print(title)
+        # print(text)
+        title = title.replace("\"", "\'")
+        title = title.replace("`", "\'")
+        # title = title.replace("(", '')
+        # title = title.replace(")", '')
+        text = text.replace("\"", "\'")
+        text = text.replace("`", "\'")
+        # print(title)
+        # print(text)
+        # exit()
         to_table = {
                 'title' : title,
                 'link' : link,

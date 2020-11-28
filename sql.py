@@ -7,7 +7,9 @@ db = mysql.connector.connect(
     database="main"
 )
 
-cur = db.cursor()
+# The buffered==True I got from stackoverflow.
+# it solves a "unread result found" runtime error.
+cur = db.cursor(buffered=True)
 
 
 def db_tear():
@@ -169,11 +171,14 @@ def query_newsdata(articleID):
 
 
 def insert_newsdata(title, contents, articleDate, positivity, ticker):
-    values = "(\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
-    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES " + values)
+    print("insert_newsdata")
+    values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
+    statment = "INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES " + values
+    print(statment)
+    cur.execute(statment)
     cur.execute("SELECT * FROM newsdata")
-    for x in cur:
-        print(x)
+    # for x in cur:
+    #     print(x)
 
 def delete_newsdata(articleID):
     condition = "articleID=" + str(articleID) + ""
