@@ -11,16 +11,16 @@ cur = db.cursor()
 
 
 def db_tear():
-    cur.execute("DROP TABLE newsdata")
-    cur.execute("DROP TABLE stockprice")
-    cur.execute("DROP TABLE stockinfo")
-    cur.execute("DROP TABLE portfolio")
-    cur.execute("DROP TABLE userdata")
+    cur.execute("DROP TABLE IF EXISTS newsdata ")
+    cur.execute("DROP TABLE IF EXISTS stockprice")
+    cur.execute("DROP TABLE IF EXISTS stockinfo")
+    cur.execute("DROP TABLE IF EXISTS portfolio")
+    cur.execute("DROP TABLE IF EXISTS userdata")
 
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (articleID INT(255) NOT NULL AUTO_INCREMENT, title VARCHAR(255), contents TEXT(65535), articleDate DATE, positivity INT(255), ticker VARCHAR(10), PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (title VARCHAR(255), contents TEXT(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
@@ -56,8 +56,13 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (2, \'MSFT\')")
     cur.execute("INSERT INTO portfolio VALUES (2, \'GOOG\')")
 
-    cur.execute("INSERT INTO newsdata VALUES (0,\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
-    cur.execute("INSERT INTO newsdata VALUES (1,\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
+    # TODO: There are problems with inserting into newsdata
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title1\', \'bad bad bad bad bad bad bad \', \'2020-10-17\', 0.0, \'AAPL\')")
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title2\', \' test contents good bad good bad\', \'2020-10-17\', 0.5, \'AAPL\')")
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title3\', \' test contents bad good bad good\', \'2020-10-17\', 0.5, \'AAPL\')")
+    # cur.execute("INSERT INTO newsdata VALUES (\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
+    # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 
 
 def query_userdata(email):
