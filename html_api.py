@@ -35,6 +35,7 @@ def create_account():
         portfolio_id = random.randint(0, 255)
     portfolioSet.add(portfolio_id)
     sql.insert_userdata(email, name, password, portfolio_id)
+    response.body = json.dumps({'portfolio-id': portfolio_id})
     return response
 
 
