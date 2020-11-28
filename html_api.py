@@ -4,7 +4,7 @@ import sql
 import random
 import datetime
 
-from news_api import getDate as getNewsData
+from news_api import getData as getNewsData
 
 portfolioSet = set()
 articleSet = set()
@@ -153,16 +153,18 @@ def get_stockprice(ticker):
 
 @get("/articles")
 def get_articles():
+    print("return all articles")
     articles = sql.query_all_articles()
     body = []
     for e in articles:
+        print(e)
         body.append({
-            'articleID': e[0],
-            'title': e[1],
-            'contents': e[2],
-            'date': e[3].strftime("%Y-%m-%d"),
-            'positivity': e[4],
-            'ticker': e[5],
+            'title': e[0],
+            'contents': e[1],
+            'date': e[2].strftime("%Y-%m-%d"),
+            'positivity': e[3],
+            'ticker': e[4],
+            'articleID': e[5]
         })
     response.body = json.dumps(body)
     return response
@@ -184,7 +186,7 @@ def get_articles(ticker, startDate, endDate):
 
     else:
         # check the dates of the first and last articles in the returned list
-        # double check that element at idx 3 is actally the date
+        # TODO: double check that element at idx 3 is actally the date
         startDateArticle = articles[0][3]
         endDateArticle   = articles[-1][3]
         if startDateArticle != startDate:

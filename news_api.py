@@ -18,6 +18,9 @@ for word in opinion_lexicon.positive():
     positive_words[word] = 1
 for word in opinion_lexicon.negative():
     negative_words[word] = 1
+
+
+    
 def getData(ticker, startDate, endDate):
     print("Querying NewsApi Endpoint for Data")
     if ticker == None or startDate == None or endDate == None:

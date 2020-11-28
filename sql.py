@@ -170,11 +170,10 @@ def query_newsdata(articleID):
 
 def insert_newsdata(title, contents, articleDate, positivity, ticker):
     values = "(\'" + title + "\',\'" + contents + "\',\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
-    cur.execute("INSERT INTO newsdata VALUES " + values)
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES " + values)
     cur.execute("SELECT * FROM newsdata")
     for x in cur:
         print(x)
-
 
 def delete_newsdata(articleID):
     condition = "articleID=" + str(articleID) + ""
