@@ -26,7 +26,7 @@ def db_init():
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
-        "CREATE TABLE stockinfo (ticker VARCHAR(10), companyName VARCHAR(255), marketCap INT(255), PRIMARY KEY (ticker))")
+        "CREATE TABLE stockinfo (ticker VARCHAR(10), companyName VARCHAR(255), marketCap BIGINT(255), PRIMARY KEY (ticker))")
     cur.execute(
         "CREATE TABLE portfolio (portfolioID VARCHAR(255), stockTicker VARCHAR(10))")
         #
@@ -93,13 +93,13 @@ def delete_userdata(username):
 
 
 def query_portfolio(portfolioID):
-    condition = "portfolioID=" + str(portfolioID) + ""
+    condition = "portfolioID=\'" + portfolioID + "\'"
     cur.execute("SELECT * FROM portfolio WHERE " + condition)
     return cur.fetchall()
 
 
 def insert_portfolio(portfolioID, stockTicker):
-    values = "(" + str(portfolioID) + ",\'" + stockTicker + "\')"
+    values = "(\'" + portfolioID + "\',\'" + stockTicker + "\')"
     cur.execute("INSERT INTO portfolio VALUES " + values)
     cur.execute("SELECT * FROM portfolio")
     for x in cur:
@@ -107,7 +107,7 @@ def insert_portfolio(portfolioID, stockTicker):
 
 
 def delete_portfolio(portfolioID):
-    condition = "portfolioID=" + str(portfolioID) + ""
+    condition = "portfolioID=\'" + portfolioID + "\'"
     cur.execute("DELETE FROM portfolio WHERE " + condition)
     cur.execute("SELECT * FROM portfolio")
     for x in cur:
@@ -121,7 +121,7 @@ def query_stockinfo(ticker):
 
 
 def insert_stockinfo(ticker, companyName, marketCap):
-    values = "(\'" + ticker + "\',\'" + companyName + "\'," + marketCap + ")"
+    values = "(\'" + ticker + "\',\'" + companyName + "\'," + str(marketCap) + ")"
     cur.execute("INSERT INTO stockinfo VALUES " + values)
     cur.execute("SELECT * FROM stockinfo")
     for x in cur:
@@ -152,11 +152,8 @@ def query_stockprice(ticker):
 
 
 def insert_stockprice(ticker, open, close, low, high, priceDate):
-    values = "(\'" + ticker + "\'," + open + "," + close + "," + low + "," + high + ",\'" + priceDate + "\')"
+    values = "(\'" + ticker + "\'," + str(open) + "," + str(close) + "," + str(low) + "," + str(high) + ",\'" + priceDate + "\')"
     cur.execute("INSERT INTO stockprice VALUES " + values)
-    cur.execute("SELECT * FROM stockprice")
-    for x in cur:
-        print(x)
 
 
 def delete_stockprice(ticker):
@@ -194,7 +191,7 @@ def delete_newsdata(articleID):
 def query_stockprice_by_portfolio_by_date(portfolioID, date):
     select = "i.ticker, i.companyName, i.marketCap, sp.open, sp.close, sp.low, sp.high, sp.priceDate"
     db = "portfolio p LEFT JOIN stockinfo i ON p.stockTicker = i.ticker LEFT JOIN stockprice sp ON i.ticker = sp.ticker"
-    condition = "portfolioID=" + str(portfolioID) + " AND sp.priceDate=\'" + date + "\'"
+    condition = "portfolioID=\'" + portfolioID + "\' AND sp.priceDate=\'" + date + "\'"
     cur.execute("SELECT " + select + " FROM " + db + " WHERE " + condition)
     return cur.fetchall()
 
@@ -220,7 +217,7 @@ def query_newsdata_by_ticker_and_date(ticker, startDate, endDate):
     return cur.fetchall()
 
 def delete_ticker_from_portfolio(portfolioID, ticker):
-    condition = "portfolioID=" + str(portfolioID) + " AND stockTicker=\'" + ticker + "\'"
+    condition = "portfolioID=\'" + portfolioID + "\' AND stockTicker=\'" + ticker + "\'"
     cur.execute("DELETE FROM portfolio WHERE " + condition)
     cur.execute("SELECT * FROM portfolio")
     for x in cur:

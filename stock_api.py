@@ -14,26 +14,23 @@ def getStockData(from_, to, ticker):
     client = RESTClient(key)
     last_resp = ""
     old_resp = ""
-    d1 = datetime.strptime(from_, "%Y-%m-%d").date()
-    d2 = datetime.strptime(to, "%Y-%m-%d").date()
-    while(d1 < d2):
-        old_resp = last_resp
-        resp = client.stocks_equities_aggregates("AAPL", 1, "day", from_, to, unadjusted=False)
-        
-        for result in resp.results:
-            dt = ts_to_datetime(result["t"])
-            sub_data = {}
-            sub_data["Date"] = dt
-            sub_data["Close"] = result['c']
-            sub_data["Open"] = result['o']
-            sub_data["Low"] = result['l']
-            sub_data["High"] = result['h']
-            hist_data.append(sub_data)
-            last_resp =datetime.fromtimestamp(result["t"] / 1000.0).date()
-        d1 = last_resp
-        from_ = last_resp
-        if(old_resp == last_resp):
-            break
+    d1 = from_
+    d2 = to
+    old_resp = last_resp
+    resp = client.stocks_equities_aggregates(ticker, 1, "day", from_, to, unadjusted=False)
+
+    for result in resp.results:
+        dt = ts_to_datetime(result["t"])
+        sub_data = {}
+        sub_data["date"] = dt
+        sub_data["close"] = result['c']
+        sub_data["open"] = result['o']
+        sub_data["low"] = result['l']
+        sub_data["high"] = result['h']
+        hist_data.append(sub_data)
+        last_resp =datetime.fromtimestamp(result["t"] / 1000.0).date()
+    d1 = last_resp
+    from_ = last_resp
 
     return hist_data
 
