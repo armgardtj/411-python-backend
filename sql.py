@@ -48,6 +48,10 @@ def db_fake_insert():
     cur.execute("INSERT INTO stockinfo VALUES (\'GOOG\', \'Google TM\', 2)")
     cur.execute("INSERT INTO stockinfo VALUES (\'MSFT\', \'Microhard\', 3)")
 
+    neo4j_insert_ticker('AAPL')
+    neo4j_insert_ticker('GOOG')
+    neo4j_insert_ticker('MSFT')
+
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 12, 13, 14, 15, \'2020-11-05\')")
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 13, 14, 15, 16, \'2020-11-04\')")
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 14, 15, 17, 23498, \'2020-11-03\')")
@@ -68,6 +72,12 @@ def db_fake_insert():
     cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title1\', \'bad bad bad bad bad bad bad \', \'2020-10-17\', 0.0, \'AAPL\')")
     cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title2\', \' test contents good bad good bad\', \'2020-10-17\', 0.5, \'AAPL\')")
     cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title3\', \' test contents bad good bad good\', \'2020-10-17\', 0.5, \'AAPL\')")
+
+    neo4j_insert_article('test title', 'AAPL')
+    neo4j_insert_article('test title1', 'AAPL')
+    neo4j_insert_article('test title2', 'AAPL')
+    neo4j_insert_article('test title3', 'AAPL')
+
     # cur.execute("INSERT INTO newsdata VALUES (\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 

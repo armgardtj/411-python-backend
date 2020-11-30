@@ -10,6 +10,28 @@ driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_pass))
 #
 #
 #
+def neo4j_insert_ticker(ticker):
+    print("neo4j_insert_ticker - start")
+    # First, check if it exists.
+    with driver.session() as session:
+        result = session.run("MATCH (t:Ticker {ticker : $ticker}) "
+                             "RETURN t", ticker=ticker)
+
+        if result.peek():
+            print("neo4j_insert_ticker - ticker already in neo4j, doing nothing")
+            return
+        session.close()
+
+    with driver.session() as session:
+        result = session.run("CREATE (t:Ticker) "
+                             "SET t.ticker = $ticker "
+                             "RETURN t.ticker AS ticker", ticker=ticker)
+        session.close()
+    print("neo4j_insert_ticker - ticker added successfully")
+
+#
+#
+#
 def neo4j_insert_article(title, ticker):
     print("neo4j_insert_article - start")
     # First, check if it exists.
@@ -33,27 +55,7 @@ def neo4j_insert_article(title, ticker):
 
     print("neo4j_insert_article - article added successfully")
 
-#
-#
-#
-def neo4j_insert_ticker(ticker):
-    print("neo4j_insert_ticker - start")
-    # First, check if it exists.
-    with driver.session() as session:
-        result = session.run("MATCH (t:Ticker {ticker : $ticker}) "
-                             "RETURN t", ticker=ticker)
 
-        if result.peek():
-            print("neo4j_insert_ticker - ticker already in neo4j, doing nothing")
-            return
-        session.close()
-
-    with driver.session() as session:
-        result = session.run("CREATE (t:Ticker) "
-                             "SET t.ticker = $ticker "
-                             "RETURN t.ticker AS ticker", ticker=ticker)
-        session.close()
-    print("neo4j_insert_ticker - ticker added successfully")
 
 def neo4j_insert_relationship(title, ticker):
     print("neo4j_insert_relationship - start")
