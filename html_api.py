@@ -231,7 +231,7 @@ def get_articles(ticker):
         # insert each result into the articles table
         for article in newsApiData:
             # print(article)
-            sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker)
+            sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker, link=article['link'])
         # return the articles and requery
         #
         articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
@@ -242,12 +242,13 @@ def get_articles(ticker):
         for e in articles:
             print(e)
             body.append({
-                'title': str(e[0]),
-                'contents': str(e[1]),
+                'title': e[0].decode("utf-8"),
+                'contents': e[1].decode("utf-8"),
                 'date': e[2].strftime("%Y-%m-%d"),
                 'positivity': e[3],
                 'ticker': e[4],
-                'articleID': e[5]
+                'link': e[5].decode("utf-8"),
+                'articleID': e[6]
             })
 
         response.body = json.dumps(body)
