@@ -43,7 +43,7 @@ def db_init():
 
 
 def db_fake_insert():
-    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-11-05\', 1.0, \'AAPL\')")
+    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker, link, articleID) VALUES (\'test title\', \' good good good good good \', \'2020-11-05\', 1.0, \'AAPL\', \'link\', 1)")
 
     cur.execute("INSERT INTO userdata VALUES (\'test1\', \'pass\')")
     cur.execute("INSERT INTO userdata VALUES (\'test2\', \'pass2\')")
@@ -265,5 +265,5 @@ db_fake_insert()
 
 
 #print(query_stockprice("AAPL"))
-#print(query_bigdays("AAPL"))
+print(query_bigdays("AAPL"))
 #print(query_all_articles())
