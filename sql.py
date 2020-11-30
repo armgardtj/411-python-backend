@@ -2,7 +2,7 @@ import mysql.connector
 
 db = mysql.connector.connect(
     host="localhost",
-    user="root",
+    user="user",
     password="password",
     database="main"
 )
@@ -23,7 +23,7 @@ def db_tear():
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), link BLOB(255), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), link BLOB(255), articleID BIGINT(255), PRIMARY KEY (articleID))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
@@ -69,11 +69,11 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
 
     # TODO: There are problems with inserting into newsdata
-    
-    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title1\', \'bad bad bad bad bad bad bad \', \'2020-10-17\', 0.0, \'AAPL\')")
-    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title2\', \' test contents good bad good bad\', \'2020-10-17\', 0.5, \'AAPL\')")
-    cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title3\', \' test contents bad good bad good\', \'2020-10-17\', 0.5, \'AAPL\')")
-    
+
+    # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
+    # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title1\', \'bad bad bad bad bad bad bad \', \'2020-10-17\', 0.0, \'AAPL\')")
+    # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title2\', \' test contents good bad good bad\', \'2020-10-17\', 0.5, \'AAPL\')")
+    # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title3\', \' test contents bad good bad good\', \'2020-10-17\', 0.5, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata VALUES (\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 
@@ -172,18 +172,16 @@ def delete_stockprice(ticker):
         print(x)
 
 
-def query_newsdata(articleID):
-    condition = "articleID=" + str(articleID) + ""
+def query_newsdata(link):
+    condition = "link=\'" + link + "\'"
     cur.execute("SELECT * FROM newsdata WHERE " + condition)
     return cur.fetchall()
 
 
-def insert_newsdata(title, contents, articleDate, positivity, ticker, link):
-    print("insert_newsdata")
-    values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\',\'" + link + "\')"
-    statment = "INSERT INTO newsdata (title, contents, articleDate, positivity, ticker, link) VALUES " + values
-    print(statment)
-    cur.execute(statment)
+def insert_newsdata(title, contents, articleDate, positivity, ticker, link, articleID):
+    values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\',\'" + link + "\'," + str(articleID) + ")"
+    statement = "INSERT IGNORE INTO newsdata VALUES " + values
+    cur.execute(statement)
     cur.execute("SELECT * FROM newsdata")
     # for x in cur:
     #     print(x)

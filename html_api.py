@@ -215,73 +215,30 @@ def get_articles():
     print(body)
     return response
 
+
 @get("/articles/<ticker>")
 def get_articles(ticker):
+    start = request.query.get('startDate', None)
+    end = request.query.get('endDate', None)
+    # add queried articles to database
+    newsApiData = getNewsData(ticker, start, end)
+    for article in newsApiData:
+        sql.insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
+                            ticker, article['link'], article['articleID'])
+    articles = sql.query_newsdata_by_ticker_and_date(ticker, start, end)
+    body = []
+    for e in articles:
+        body.append({
+            'title': e[0].decode("utf-8"),
+            'contents': e[1].decode("utf-8"),
+            'date': e[2].strftime("%Y-%m-%d"),
+            'positivity': e[3],
+            'ticker': e[4],
+            'link': e[5].decode("utf-8"),
+            'articleID': e[6]
+        })
+    response.body = json.dumps(body)
+    return response
 
-    startDate = request.query.get('startDate', None)
-    endDate   = request.query.get('endDate', None)
-
-    # query the database for news articles in the date range
-    articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
-    # if the list is empty, then we have to query the news api and get the data
-    if len(articles) == 0:
-        print("get_articles - pulling new data")
-        # do api query
-        newsApiData = getNewsData(ticker, startDate, endDate)
-        # insert each result into the articles table
-        for article in newsApiData:
-            # print(article)
-            sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker, link=article['link'])
-        # return the articles and requery
-        #
-        articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
-        print('\n\nArticles:')
-        print(articles)
-         
-        body = []
-        for e in articles:
-            print(e)
-            body.append({
-                'title': e[0].decode("utf-8"),
-                'contents': e[1].decode("utf-8"),
-                'date': e[2].strftime("%Y-%m-%d"),
-                'positivity': e[3],
-                'ticker': e[4],
-                'link': e[5].decode("utf-8"),
-                'articleID': e[6]
-            })
-
-        response.body = json.dumps(body)
-        return response
-    else:
-        print("get_articles - found data in database")
-        startDateArticle = str(articles[0][2])
-        endDateArticle   = str(articles[-1][2])
-        if startDate == startDateArticle and endDate == endDateArticle:
-            return articles
-        # check the dates of the first and last articles in the returned list
-        # TODO: double check that element at idx 3 is actally the date
-        if startDateArticle != startDate:
-            print("get_articles - start date mismatch")
-            # pull the data in date range [startDate, startDateArticle]
-            newsApiData = getNewsData(ticker, startDate, startDateArticle)
-            for article in newsApiData:
-                # print(article)
-                sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker)
-                # articles.append(article)
-        if endDateArticle != endDate:
-            print("get_articles - end date mismatch")
-            # pull the data in date range [endDateArticle, endDate]
-            newsApiData = getNewsData(ticker, endDateArticle, endDate)
-            for article in newsApiData:
-                sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker)
-                # articles.append(article)
-        print("get_articles - returning")
-        articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
-        ret = []
-        for a in articles:
-            ret.append((a[0],a[1],str(a[2]),a[3],a[4],a[5]))
-        response.body = json.dumps(ret)
-        return response
 
 run(host='localhost', port=8080)
