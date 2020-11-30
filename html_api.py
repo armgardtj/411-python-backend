@@ -211,6 +211,8 @@ def get_articles():
             'articleID': e[5]
         })
     response.body = json.dumps(body)
+    print('\n\n\nArticles')
+    print(body)
     return response
 
 @get("/articles/<ticker>")
@@ -228,11 +230,27 @@ def get_articles(ticker):
         newsApiData = getNewsData(ticker, startDate, endDate)
         # insert each result into the articles table
         for article in newsApiData:
+            # print(article)
             sql.insert_newsdata(title=article['title'], contents=article['text'], articleDate=article['articleDate'][0:10], positivity=str(article['sentiment']), ticker=ticker)
         # return the articles and requery
         #
         articles = sql.query_newsdata_by_ticker_and_date(ticker, startDate, endDate)
-        response.body = json.dumps(articles)
+        print('\n\nArticles:')
+        print(articles)
+         
+        body = []
+        for e in articles:
+            print(e)
+            body.append({
+                'title': str(e[0]),
+                'contents': str(e[1]),
+                'date': e[2].strftime("%Y-%m-%d"),
+                'positivity': e[3],
+                'ticker': e[4],
+                'articleID': e[5]
+            })
+
+        response.body = json.dumps(body)
         return response
     else:
         print("get_articles - found data in database")

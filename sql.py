@@ -2,7 +2,7 @@ import mysql.connector
 
 db = mysql.connector.connect(
     host="localhost",
-    user="user",
+    user="root",
     password="password",
     database="main"
 )
@@ -22,7 +22,7 @@ def db_tear():
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (title VARCHAR(255), contents TEXT(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
