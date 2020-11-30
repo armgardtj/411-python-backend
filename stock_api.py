@@ -20,7 +20,7 @@ def getStockData(from_, to, ticker):
     resp = client.stocks_equities_aggregates(ticker, 1, "day", from_, to, unadjusted=False)
 
     for result in resp.results:
-        dt = ts_to_datetime(result["t"])
+        dt = datetime.fromtimestamp(result["t"] / 1000.0).date().strftime("%Y-%m-%d")
         sub_data = {}
         sub_data["date"] = dt
         sub_data["close"] = result['c']
@@ -49,4 +49,4 @@ def getStockInfo(ticker):
     return Info
     
 
-#print(getStockInfo("NOOO"))
+#print(getStockData("2019-01-01", "2020-01-01", "AAPL"))
