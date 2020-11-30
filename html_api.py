@@ -137,7 +137,6 @@ def add_ticker_to_db(ticker):
     start_date = end_date - datetime.timedelta(days=30)
     stock_data = stock_api.getStockData(start_date, end_date, ticker)
     for d in stock_data:
-        d['date'] = datetime.datetime.strptime(d['date'], '%Y-%m-%d %H:%M').date().strftime('%Y-%m-%d')
         sql.insert_stockprice(ticker, d['open'], d['close'], d['low'], d['high'], d['date'])
     return True
 

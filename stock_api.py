@@ -5,22 +5,18 @@ from polygon import RESTClient
 
 
 def ts_to_datetime(ts):
-    return datetime.fromtimestamp(ts / 1000.0).strftime('%Y-%m-%d %H:%M')
+    return datetime.fromtimestamp(ts / 1000.0).strftime('%Y-%m-%d')
 
-hist_data = []
+
 def getStockData(from_, to, ticker):
     key = "PKR2KQ0NLBO5RJ22KV0U"
-
     client = RESTClient(key)
     last_resp = ""
-    old_resp = ""
-    d1 = from_
-    d2 = to
-    old_resp = last_resp
     resp = client.stocks_equities_aggregates(ticker, 1, "day", from_, to, unadjusted=False)
-
+    hist_data = []
     for result in resp.results:
         dt = ts_to_datetime(result["t"])
+        #print(dt)
         sub_data = {}
         sub_data["date"] = dt
         sub_data["close"] = result['c']
@@ -29,9 +25,6 @@ def getStockData(from_, to, ticker):
         sub_data["high"] = result['h']
         hist_data.append(sub_data)
         last_resp =datetime.fromtimestamp(result["t"] / 1000.0).date()
-    d1 = last_resp
-    from_ = last_resp
-
     return hist_data
 
 def getStockInfo(ticker):
