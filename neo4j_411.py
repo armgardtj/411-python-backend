@@ -60,11 +60,24 @@ def neo4j_insert_article(title, ticker):
 def neo4j_insert_relationship(title, ticker):
     print("neo4j_insert_relationship - start")
     with driver.session() as session:
-        result = session.run("CREATE (a:Article {title : $title})-[:written_about]->(t:Ticker {ticker : $ticker}) ",
+        result = session.run("MATCH (a:Article), (t:Ticker) "
+                             "WHERE a.title=$title AND t.ticker=$ticker "
+                             "CREATE (a)-[:written_about]->(t) ",
                               ticker=ticker, title=title)
         session.close()
-    print("neo4j_insert_relationship - relation added successfully")
+        print("neo4j_insert_relationship - relation added successfully")
 
+#
+# gets back all the articles that are written about more than one ticker
+#
+def neo4j_get_high_impact_articles():
+    print("neo4j_get_high_impact_articles - start")
+
+    with driver.session() as session:
+        result = session.run("MATCH (a:Article)-[:written_about]->(t1:Ticker), (a:Article)-[:written_about]->(t2:Ticker) "
+                             "RETURN a", title=title)
+        print("neo4j_get_high_impact_articles - returning articles")
+        return result
 
 # When I insert a ticker into sql, check if that ticker exists in neo4j
 #       If the ticker does not exist, insert it
@@ -84,7 +97,11 @@ if __name__ == "__main__":
     title = "Apple shares good"
     ticker = "AAPL"
     # ticker = "nothing"
-
+    # ret = neo4j_get_high_impact_articles()
+    # print(ret)
+    # print(ret.peek())
+    # for r in ret:
+    #     print(r)
     neo4j_insert_article(title, ticker)
     # neo4j_insert_ticker(ticker)
 
