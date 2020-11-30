@@ -2,7 +2,7 @@ import mysql.connector
 
 db = mysql.connector.connect(
     host="localhost",
-    user="root",
+    user="user",
     password="password",
     database="main"
 )
@@ -30,17 +30,17 @@ def db_init():
     cur.execute(
         "CREATE TABLE portfolio (portfolioID VARCHAR(255), stockTicker VARCHAR(10))")
         #
-        # portfolioID is just an email from the userdata table that tells us which stocks a user has in their portfolio
+        # portfolioID is just an username from the userdata table that tells us which stocks a user has in their portfolio
         #
     cur.execute(
-        "CREATE TABLE userdata (email VARCHAR(255), name VARCHAR(255), password VARCHAR(255), PRIMARY KEY (email))")
+        "CREATE TABLE userdata (username VARCHAR(255), password VARCHAR(255), PRIMARY KEY (username))")
     # view stocks page: list all tickers in portfolio, add/remove tickers
     # chart page: show historical stock data and news articles
 
 
 def db_fake_insert():
-    cur.execute("INSERT INTO userdata VALUES (\'test1@email\', \'name\', \'pass\')")
-    cur.execute("INSERT INTO userdata VALUES (\'test2@email\', \'nam2\', \'pass2\')")
+    cur.execute("INSERT INTO userdata VALUES (\'test1\', \'pass\')")
+    cur.execute("INSERT INTO userdata VALUES (\'test2\', \'pass2\')")
 
     cur.execute("INSERT INTO stockinfo VALUES (\'AAPL\', \'Apple Inc\', 1)")
     cur.execute("INSERT INTO stockinfo VALUES (\'GOOG\', \'Google TM\', 2)")
@@ -56,10 +56,10 @@ def db_fake_insert():
     cur.execute("INSERT INTO stockprice VALUES (\'MSFT\', 1753, 1844, 12165, 84516, \'2020-11-04\')")
     cur.execute("INSERT INTO stockprice VALUES (\'MSFT\', 1474, 1541, 1247, 233456498, \'2020-11-03\')")
 
-    cur.execute("INSERT INTO portfolio VALUES (\'test1@email\', \'AAPL\')")
-    cur.execute("INSERT INTO portfolio VALUES (\'test1@email\', \'GOOG\')")
-    cur.execute("INSERT INTO portfolio VALUES (\'test2@email\', \'MSFT\')")
-    cur.execute("INSERT INTO portfolio VALUES (\'test2@email\', \'GOOG\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'AAPL\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'GOOG\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'MSFT\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
 
     # TODO: There are problems with inserting into newsdata
     cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
@@ -70,22 +70,22 @@ def db_fake_insert():
     # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 
 
-def query_userdata(email):
-    condition = "email=\'" + email + "\'"
+def query_userdata(username):
+    condition = "username=\'" + username + "\'"
     cur.execute("SELECT * FROM userdata WHERE " + condition)
     return cur.fetchall()
 
 
-def insert_userdata(email, name, password):
-    values = "(\'" + email + "\',\'" + name + "\',\'" + password + "\')"
+def insert_userdata(username, password):
+    values = "(\'" + username + "\',\'" + password + "\')"
     cur.execute("INSERT INTO userdata VALUES " + values)
     cur.execute("SELECT * FROM userdata")
     for x in cur:
         print(x)
 
 
-def delete_userdata(email):
-    condition = "email=\'" + email + "\'"
+def delete_userdata(username):
+    condition = "username=\'" + username + "\'"
     cur.execute("DELETE FROM userdata WHERE " + condition)
     cur.execute("SELECT * FROM userdata")
     for x in cur:
@@ -230,8 +230,8 @@ def query_stockprice_dates():
     cur.execute("SELECT DISTINCT priceDate FROM stockprice ORDER BY priceDate DESC")
     return cur.fetchall()
 
-def query_login_info(email, password):
-    condition = "email=\'" + email + "\' AND password=\'" + password + "\'"
+def query_login_info(username, password):
+    condition = "username=\'" + username + "\' AND password=\'" + password + "\'"
     statment = "SELECT * FROM userdata WHERE " + condition
     # print(statment)
     cur.execute(statment)

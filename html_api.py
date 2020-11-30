@@ -24,50 +24,46 @@ def f():
 
 @post("/account")
 def create_account():
-    email = request.query.get('email')
-    name = request.query.get('name')
+    username = request.query.get('username')
     password = request.query.get('password')
-    if not email or not name or not password:
+    if not username or not password:
         response.status = 400
         return response
-    # portfolio_id = random.randint(0, 255)
-    # while portfolio_id in portfolioSet:
-    #     portfolio_id = random.randint(0, 255)
-    # portfolioSet.add(portfolio_id)
-    sql.insert_userdata(email, name, password)
-    response.body = json.dumps({'email': email, 'name': name})
+    sql.insert_userdata(username, password)
+    response.body = json.dumps({'username': username})
     return response
 
 
 @delete("/account")
 def delete_account():
-    email = request.query.get('email')
-    if not email:
+    username = request.query.get('username')
+    if not username:
         response.status = 400
         return
-    accounts = sql.query_userdata(email)
+    accounts = sql.query_userdata(username)
     for account in accounts:
         portfolioId = account[3]
         portfolioSet.remove(portfolioId)
         sql.delete_portfolio(portfolioId)
-    sql.delete_userdata(email)
+    sql.delete_userdata(username)
     return response
+
 
 @get("/account")
 def login_to_account():
     print("login_to_account - starting")
-    # this function logs the user in and returns their portfolio IDs - which is their email
+    # this function logs the user in and returns their portfolio IDs - which is their username
     # the user should only have one portfolio ID, but it returns all in the event there are several
     # after this is called, the /portfolio/<id> endpoint should be called to return the tickers
-    email = request.query.get('email')
+    username = request.query.get('username')
     password = request.query.get('password')
-    if not email or not password:
-        print("login_to_account - email or pass is null")
+    if not username or not password:
+        print("login_to_account - username or pass is null")
         response.status = 400
         return
-    accounts = sql.query_login_info(email, password)
+    accounts = sql.query_login_info(username, password)
     if len(accounts) == 0:
-        print("login_to_account - invalid email or pass")
+        print("login_to_account - invalid username or pass")
         response.status = 400
         return
     body = []
