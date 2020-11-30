@@ -234,9 +234,17 @@ def query_login_info(username, password):
     cur.execute(statment)
     return cur.fetchall()
 
+def create_trigger():
+    cur.execute("drop trigger if exists main.trg ")
+    statment = "CREATE TRIGGER main.trg BEFORE INSERT ON stockprice FOR EACH ROW BEGIN IF (select ticker from stockprice) THEN  SET NEW.ticker = \'SAM\'; END IF; END"
+    cur.execute(statment)
+
 db_tear()
 db_init()
+create_trigger()
 db_fake_insert()
-cur.execute("SHOW TABLES")
-for x in cur:
-    print(x)
+#cur.execute("SHOW TABLES")
+#for x in cur:
+#    print(x)
+
+print(query_stockprice("AAPL"))
