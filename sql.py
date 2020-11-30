@@ -22,7 +22,7 @@ def db_tear():
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), link BLOB(255), articleID INT(255) AUTO_INCREMENT, PRIMARY KEY (articleID))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
@@ -170,10 +170,10 @@ def query_newsdata(articleID):
     return cur.fetchall()
 
 
-def insert_newsdata(title, contents, articleDate, positivity, ticker):
+def insert_newsdata(title, contents, articleDate, positivity, ticker, link):
     print("insert_newsdata")
-    values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\')"
-    statment = "INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES " + values
+    values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\',\'" + link + "\')"
+    statment = "INSERT INTO newsdata (title, contents, articleDate, positivity, ticker, link) VALUES " + values
     print(statment)
     cur.execute(statment)
     cur.execute("SELECT * FROM newsdata")
