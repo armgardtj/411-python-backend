@@ -105,7 +105,10 @@ def add_ticker_to_portfolio(id):
     ticker = request.query.get('ticker')
     company = sql.query_stockinfo(ticker)
     if len(company) == 0:  # need to query stock api
-        add_ticker_to_db(ticker)
+        success = add_ticker_to_db(ticker)
+        if not success:
+            response.status = 500
+            return response
     sql.insert_portfolio(id, ticker)
     date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
     portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
@@ -127,6 +130,8 @@ def add_ticker_to_portfolio(id):
 
 def add_ticker_to_db(ticker):
     stock_info = stock_api.getStockInfo(ticker)
+    if not stock_info:
+        return False
     sql.insert_stockinfo(stock_info['Ticker'], stock_info['Name'], stock_info['MarketCap'])
     end_date = sql.query_stockprice_dates()[0][0] + datetime.timedelta(days=1)
     start_date = end_date - datetime.timedelta(days=30)
@@ -134,6 +139,7 @@ def add_ticker_to_db(ticker):
     for d in stock_data:
         d['date'] = datetime.datetime.strptime(d['date'], '%Y-%m-%d %H:%M').date().strftime('%Y-%m-%d')
         sql.insert_stockprice(ticker, d['open'], d['close'], d['low'], d['high'], d['date'])
+    return True
 
 
 @get("/portfolio/<id>/delete")
