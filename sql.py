@@ -1,5 +1,7 @@
 import mysql.connector
 
+from neo4j_411 import neo4j_insert_article, neo4j_insert_ticker
+
 db = mysql.connector.connect(
     host="localhost",
     user="user",
@@ -126,6 +128,7 @@ def insert_stockinfo(ticker, companyName, marketCap):
     cur.execute("SELECT * FROM stockinfo")
     for x in cur:
         print(x)
+    neo4j_insert_ticker(ticker)
 
 
 def update_stockinfo(ticker, companyName):
@@ -177,6 +180,7 @@ def insert_newsdata(title, contents, articleDate, positivity, ticker):
     print(statment)
     cur.execute(statment)
     cur.execute("SELECT * FROM newsdata")
+    neo4j_insert_article(title, ticker)
     # for x in cur:
     #     print(x)
 
