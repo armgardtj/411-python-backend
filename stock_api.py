@@ -38,12 +38,15 @@ def getStockInfo(ticker):
 
     Info = {}
     resp = requests.get("https://api.polygon.io/v1/meta/symbols/"+ticker+"/company?apiKey=PKR2KQ0NLBO5RJ22KV0U")
-
-    Info['Ticker'] = ticker
-    Info['MarketCap'] = resp.json()['marketcap']
-    
-    Info['Name'] = resp.json()['name'] 
+    try:
+        Info['Ticker'] = ticker
+        Info['MarketCap'] = resp.json()['marketcap']
+        Info['Name'] = resp.json()['name'] 
+    except:
+        print(ticker+ " cannot be found")
+        temp = {}
+        return temp
     return Info
     
 
-print(getStockInfo("AAPL"))
+#print(getStockInfo("NOOO"))
