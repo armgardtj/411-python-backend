@@ -24,23 +24,24 @@ def f():
 
 @post("/account")
 def create_account():
-    email = request.forms.get('email')
-    name = request.forms.get('name')
-    password = request.forms.get('password')
+    email = request.query.get('email')
+    name = request.query.get('name')
+    password = request.query.get('password')
     if not email or not name or not password:
         response.status = 400
         return response
-    portfolio_id = random.randint(0, 255)
-    while portfolio_id in portfolioSet:
-        portfolio_id = random.randint(0, 255)
-    portfolioSet.add(portfolio_id)
-    sql.insert_userdata(email, name, password, portfolio_id)
+    # portfolio_id = random.randint(0, 255)
+    # while portfolio_id in portfolioSet:
+    #     portfolio_id = random.randint(0, 255)
+    # portfolioSet.add(portfolio_id)
+    sql.insert_userdata(email, name, password)
+    response.body = json.dumps({'email': email, 'name': name})
     return response
 
 
 @delete("/account")
 def delete_account():
-    email = request.forms.get('email')
+    email = request.query.get('email')
     if not email:
         response.status = 400
         return
@@ -52,10 +53,37 @@ def delete_account():
     sql.delete_userdata(email)
     return response
 
+@get("/account")
+def login_to_account():
+    print("login_to_account - starting")
+    # this function logs the user in and returns their portfolio IDs - which is their email
+    # the user should only have one portfolio ID, but it returns all in the event there are several
+    # after this is called, the /portfolio/<id> endpoint should be called to return the tickers
+    email = request.query.get('email')
+    password = request.query.get('password')
+    if not email or not password:
+        print("login_to_account - email or pass is null")
+        response.status = 400
+        return
+    accounts = sql.query_login_info(email, password)
+    if len(accounts) == 0:
+        print("login_to_account - invalid email or pass")
+        response.status = 400
+        return
+    body = []
+    for account in accounts:
+        body.append(account[0])
+    print("login_to_account - returning")
+    response.body = json.dumps(body)
+    return response
+
 
 @get("/portfolio/<id>")
 def get_portfolio_data_by_date(id):
-    date = request.params.get('date')
+    # this function returns the tickers for a given portfolio ID
+    # you may provide a date for the tickers you want to retrieve
+    # if no date is given, the most recent date in the database is used
+    date = request.query.get('date')
     if date is None:
         date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
     portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
@@ -77,7 +105,7 @@ def get_portfolio_data_by_date(id):
 
 @get("/portfolio/<id>/add")
 def add_ticker_to_portfolio(id):
-    ticker = request.params.get('ticker')
+    ticker = request.query.get('ticker')
     sql.insert_portfolio(id, ticker)
     date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
     portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
@@ -99,7 +127,7 @@ def add_ticker_to_portfolio(id):
 
 @get("/portfolio/<id>/delete")
 def remove_ticker_from_portfolio(id):
-    ticker = request.params.get('ticker')
+    ticker = request.query.get('ticker')
     sql.delete_ticker_from_portfolio(id, ticker)
     date = sql.query_stockprice_dates()[0][0].strftime("%Y-%m-%d")
     portfolio = sql.query_stockprice_by_portfolio_by_date(id, date)
