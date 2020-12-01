@@ -20,29 +20,34 @@ for word in opinion_lexicon.negative():
     negative_words[word] = 1
 
 
-
 def getData(ticker, startDate, endDate):
     print("Querying NewsApi Endpoint for Data")
-    if ticker == None or startDate == None or endDate == None:
-        raise Exception("One of the parameters to this function is None.")
 
-    url = ('https://newsapi.org/v2/everything?'
-    'q='+ticker+
-    '&apiKey=9c5df86e319b4acba568a959e37fd639')
-    response = requests.get(url)
+    url = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/search/NewsSearchAPI"
+    params = {"q": ticker,
+              "toPublishedDate": endDate,
+              "fromPublishedDate": startDate,
+              "pageSize": 50,
+              "pageNumber": 1,
+              "autoCorrect": True}
+    headers = {
+        'x-rapidapi-key': "82918fd9abmsh35935d65203d30fp108b62jsnc80bbaba5de6",
+        'x-rapidapi-host': "contextualwebsearch-websearch-v1.p.rapidapi.com"
+    }
+    response = requests.request("GET", url, headers=headers, params=params)
     d = response.json()
+    # print(d)
 
-    all_articles_from_api = d['articles']
+    all_articles_from_api = d['value']
     # print("-------------------------------------------------------------------")
     progress = 0.0
     all_articles = []
     for article in all_articles_from_api:
-        publisher = article['source']['name']
-        author = article['author']
         title = article['title']
-        publishedAt = article['publishedAt']
+        datePublished = article['datePublished']
         link = article['url']
-        text = article['content']
+        text = article['body']
+        id = article['id']
         try:
             sentiment = evaluate_sentence(text)
         except Exception as e:
@@ -59,25 +64,27 @@ def getData(ticker, startDate, endDate):
         text = text.replace("`", "\'")
         
         to_table = {
-                'title' : title,
-                'link' : link,
-                'text' : text,
-                'articleDate' : publishedAt,
-                'sentiment' : sentiment
+            'title': title,
+            'link': link,
+            'text': text,
+            'articleDate': datePublished,
+            'sentiment': sentiment,
+            'articleID': id
         }
         all_articles.append(to_table)
 
-        progress+= 1
-        print(100*progress/len(all_articles_from_api))
+        progress += 1
+        # print(100*progress/len(all_articles_from_api))
         # exit()
     print("Query NewsApi Endpoint Success")
     return all_articles
     # Insert code that pushes all_articles out to the database
     # post[article['url']] = {'title': article['title'], 'text': article['content'], 'articleDate': article['publishedAt'], 'positivity': 0}
-    #p_url = "http://localhost:8080/article"
-    #header = {"content-type": "application/json"}
-    #p_response = requests.post(p_url,data=json.dumps(post), headers=header, verify=False)
-    #return p_response
+    # p_url = "http://localhost:8080/article"
+    # header = {"content-type": "application/json"}
+    # p_response = requests.post(p_url,data=json.dumps(post), headers=header, verify=False)
+    # return p_response
+
 
 '''
     Given a string that represents any size collection of English words, (sentence, paragraph)
@@ -90,6 +97,8 @@ def getData(ticker, startDate, endDate):
 
 '''
 tokenizer = treebank.TreebankWordTokenizer()
+
+
 def evaluate_sentence(sentence):
     pos_words = 0
     neg_words = 0
@@ -119,7 +128,6 @@ def evaluate_sentence(sentence):
     #     return "Negative"
     # elif pos_words == neg_words:
     #     return "Neutral"
-
 
 
 if __name__ == '__main__':
