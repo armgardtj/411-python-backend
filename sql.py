@@ -1,5 +1,7 @@
 import mysql.connector
 
+from neo4j_411 import neo4j_insert_article, neo4j_insert_ticker
+
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -52,10 +54,14 @@ def db_fake_insert():
     cur.execute("INSERT INTO stockinfo VALUES (\'GOOG\', \'Google TM\', 2)")
     cur.execute("INSERT INTO stockinfo VALUES (\'MSFT\', \'Microhard\', 3)")
 
-    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 12, 1, 14, 15, \'2020-11-03\')")
-    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 13, 2, 15, 16, \'2020-11-04\')")
-    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 14, 4, 17, 23498, \'2020-11-05\')")
-    
+    neo4j_insert_ticker('AAPL')
+    neo4j_insert_ticker('GOOG')
+    neo4j_insert_ticker('MSFT')
+
+    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 12, 13, 14, 15, \'2020-11-05\')")
+    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 13, 14, 15, 16, \'2020-11-04\')")
+    cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 14, 15, 17, 23498, \'2020-11-03\')")
+
     cur.execute("INSERT INTO stockprice VALUES (\'GOOG\', 122, 153, 184, 195, \'2020-11-05\')")
     cur.execute("INSERT INTO stockprice VALUES (\'GOOG\', 113, 144, 145, 1896, \'2020-11-04\')")
     cur.execute("INSERT INTO stockprice VALUES (\'GOOG\', 124, 1455, 177, 232498, \'2020-11-03\')")
@@ -69,11 +75,16 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
 
     # TODO: There are problems with inserting into newsdata
-
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title1\', \'bad bad bad bad bad bad bad \', \'2020-10-17\', 0.0, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title2\', \' test contents good bad good bad\', \'2020-10-17\', 0.5, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title3\', \' test contents bad good bad good\', \'2020-10-17\', 0.5, \'AAPL\')")
+
+    # neo4j_insert_article('test title', 'AAPL')
+    # neo4j_insert_article('test title1', 'AAPL')
+    # neo4j_insert_article('test title2', 'AAPL')
+    # neo4j_insert_article('test title3', 'AAPL')
+
     # cur.execute("INSERT INTO newsdata VALUES (\'Abdu\', \'Reeee\', \'2020-10-17\', .5, \'AAPL\')")
     # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 
@@ -134,6 +145,7 @@ def insert_stockinfo(ticker, companyName, marketCap):
     cur.execute("SELECT * FROM stockinfo")
     for x in cur:
         print(x)
+    neo4j_insert_ticker(ticker)
 
 
 def update_stockinfo(ticker, companyName):
@@ -183,6 +195,7 @@ def insert_newsdata(title, contents, articleDate, positivity, ticker, link, arti
     statement = "INSERT IGNORE INTO newsdata VALUES " + values
     cur.execute(statement)
     cur.execute("SELECT * FROM newsdata")
+    neo4j_insert_article(title, ticker)
     # for x in cur:
     #     print(x)
 

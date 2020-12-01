@@ -58,17 +58,11 @@ def getData(ticker, startDate, endDate):
             sentiment = evaluate_sentence(text)
 
         # before we insert as a row, replace all of the double quote apostophes in title and text as single quote
-        # print(title)
-        # print(text)
         title = title.replace("\"", "\'")
         title = title.replace("`", "\'")
-        # title = title.replace("(", '')
-        # title = title.replace(")", '')
         text = text.replace("\"", "\'")
         text = text.replace("`", "\'")
-        # print(title)
-        # print(text)
-        # exit()
+        
         to_table = {
             'title': title,
             'link': link,
