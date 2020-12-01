@@ -54,10 +54,6 @@ def db_fake_insert():
     cur.execute("INSERT INTO stockinfo VALUES (\'GOOG\', \'Google TM\', 2)")
     cur.execute("INSERT INTO stockinfo VALUES (\'MSFT\', \'Microhard\', 3)")
 
-    neo4j_insert_ticker('AAPL')
-    neo4j_insert_ticker('GOOG')
-    neo4j_insert_ticker('MSFT')
-
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 12, 13, 14, 15, \'2020-11-05\')")
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 13, 14, 15, 16, \'2020-11-04\')")
     cur.execute("INSERT INTO stockprice VALUES (\'AAPL\', 14, 15, 17, 23498, \'2020-11-03\')")
@@ -73,6 +69,12 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'GOOG\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'MSFT\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
+
+    
+    neo4j_insert_ticker('AAPL')
+    neo4j_insert_ticker('GOOG')
+    neo4j_insert_ticker('MSFT')
+    
 
     # TODO: There are problems with inserting into newsdata
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
@@ -284,12 +286,12 @@ def create_trigger():
     statment = "CREATE TRIGGER main.trg BEFORE INSERT ON stockprice FOR EACH ROW BEGIN"
     statment += " IF (ABS(100*(NEW.close - NEW.open)/(NEW.open)) > 1) "
     statment += " THEN INSERT INTO bigdays VALUES (NEW.ticker, NEW.priceDate, 100*(NEW.close - NEW.open)/(NEW.open),"
-    statment += " (SELECT title FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
-    statment += " (SELECT contents FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
-    statment += " (SELECT articleDate FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
-    statment += " (SELECT positivity FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
-    statment += " (SELECT link FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
-    statment += " (SELECT articleID FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1) );"
+    statment += " (SELECT title FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate))  LIMIT 1),"
+    statment += " (SELECT contents FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate))  LIMIT 1),"
+    statment += " (SELECT articleDate FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate)) LIMIT 1),"
+    statment += " (SELECT positivity FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate)) LIMIT 1),"
+    statment += " (SELECT link FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate)) LIMIT 1),"
+    statment += " (SELECT articleID FROM newsdata WHERE ticker = NEW.ticker ORDER BY ABS(DATEDIFF(NEW.priceDate, articleDate)) LIMIT 1) );"
     statment += " END IF;  END"
     cur.execute(statment)
 
