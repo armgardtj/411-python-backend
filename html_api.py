@@ -247,4 +247,29 @@ def get_articles(ticker):
     return response
 
 
+@get("/articles/big/<ticker>")
+def get_big_articles(ticker):
+    bigdays = sql.query_bigdays(ticker)
+    body = []
+    for e in bigdays:
+        print(e)
+        if not e[8]: 
+            print('Continue...')
+            continue
+        body.append({
+            'ticker': e[0],
+            'bigdate': e[1].strftime("%Y-%m-%d"),
+            'percentdiff': e[2],
+            'title': e[3].decode("utf-8"),
+            'contents': e[4].decode("utf-8"),
+            'articledate': e[5].strftime("%Y-%m-%d"),
+            'positivity': e[6],
+            'link': e[7].decode("utf-8"),
+            'articleID': e[8]
+        })
+    response.body = json.dumps(body)
+    return response
+
+
+
 run(host='localhost', port=8080)
