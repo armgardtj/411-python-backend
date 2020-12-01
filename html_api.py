@@ -134,6 +134,12 @@ def add_ticker_to_db(ticker):
         return False
     sql.insert_stockinfo(stock_info['Ticker'], stock_info['Name'], stock_info['MarketCap'])
     end_date = sql.query_stockprice_dates()[0][0] + datetime.timedelta(days=1)
+    
+    newsApiData = getNewsData(ticker, start_date, end_date)
+    for article in newsApiData:
+        sql.insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
+                            ticker, article['link'], article['articleID'])
+
     start_date = end_date - datetime.timedelta(days=30)
     stock_data = stock_api.getStockData(start_date, end_date, ticker)
     for d in stock_data:
