@@ -25,6 +25,7 @@ def getData(ticker, startDate, endDate):
     print("Querying NewsApi Endpoint for Data")
     
     all_articles = []
+    old_date = endDate 
     last_datePublished = endDate
     while(last_datePublished > startDate):
         url = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/search/NewsSearchAPI"
@@ -47,7 +48,7 @@ def getData(ticker, startDate, endDate):
         # print("-------------------------------------------------------------------")
         progress = 0.0
 
-        
+
         for article in all_articles_from_api:
             title = article['title']
             datePublished = article['datePublished']
@@ -78,11 +79,17 @@ def getData(ticker, startDate, endDate):
                 'articleID': id
             }
             all_articles.append(to_table)
-
             progress += 1
-            datetime_object = datetime.strptime(datePublished, '%Y-%m-%dT%H:%M:%S')
+            print(datePublished[0:19])
+            datetime_object = datetime.strptime(datePublished[0:19], '%Y-%m-%dT%H:%M:%S')
             last_datePublished = datetime.strftime(datetime_object.date(),'%Y-%m-%d')#datetime_object
+        
+        if(last_datePublished == old_date):
+            break
+        old_date = last_datePublished
+
         # print(100*progress/len(all_articles_from_api))
+
         # exit()
     print("Query NewsApi Endpoint Success")
     return all_articles
