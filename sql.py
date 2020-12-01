@@ -1,6 +1,6 @@
 import mysql.connector
 
-from neo4j_411 import neo4j_insert_article, neo4j_insert_ticker
+#from neo4j_411 import neo4j_insert_article, neo4j_insert_ticker
 
 db = mysql.connector.connect(
     host="localhost",
@@ -39,7 +39,7 @@ def db_init():
         "CREATE TABLE userdata (username VARCHAR(255), password VARCHAR(255), PRIMARY KEY (username))")
 
     cur.execute(
-        "CREATE TABLE bigdays (ticker VARCHAR(255), bigdate DATE, percentdiff DOUBLE(255,2),title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), link BLOB(255), articleID INT(255))")
+        "CREATE TABLE bigdays (ticker VARCHAR(255), bigdate DATE, percentdiff DOUBLE(255,2),title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), link BLOB(255), articleID BIGINT(255))")
     # view stocks page: list all tickers in portfolio, add/remove tickers
     # chart page: show historical stock data and news articles
 
@@ -70,11 +70,11 @@ def db_fake_insert():
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'MSFT\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
 
-    
+    '''
     neo4j_insert_ticker('AAPL')
     neo4j_insert_ticker('GOOG')
     neo4j_insert_ticker('MSFT')
-    
+    '''
 
     # TODO: There are problems with inserting into newsdata
     # cur.execute("INSERT INTO newsdata (title, contents, articleDate, positivity, ticker) VALUES (\'test title\', \' good good good good good \', \'2020-10-17\', 1.0, \'AAPL\')")
@@ -147,7 +147,7 @@ def insert_stockinfo(ticker, companyName, marketCap):
     cur.execute("SELECT * FROM stockinfo")
     for x in cur:
         print(x)
-    neo4j_insert_ticker(ticker)
+    #neo4j_insert_ticker(ticker)
 
 
 def update_stockinfo(ticker, companyName):
@@ -197,7 +197,7 @@ def insert_newsdata(title, contents, articleDate, positivity, ticker, link, arti
     statement = "INSERT IGNORE INTO newsdata VALUES " + values
     cur.execute(statement)
     cur.execute("SELECT * FROM newsdata")
-    neo4j_insert_article(title, ticker)
+    #neo4j_insert_article(title, ticker)
     # for x in cur:
     #     print(x)
 
@@ -306,5 +306,7 @@ db_fake_insert()
 
 
 #print(query_stockprice("AAPL"))
+print(query_bigdays("T"))
 print(query_bigdays("AAPL"))
+
 #print(query_all_articles())
