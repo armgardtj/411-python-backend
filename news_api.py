@@ -3,7 +3,7 @@ import json
 import nltk
 
 from nltk.classify import NaiveBayesClassifier
-from nltk.corpus import subjectivity, opinion_lexicon
+from nltk.corpus import subjectivity, opinion_lexicon, stopwords
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import *
 from nltk.tokenize import treebank
@@ -19,6 +19,11 @@ for word in opinion_lexicon.positive():
 for word in opinion_lexicon.negative():
     negative_words[word] = 1
 
+try:
+    stop_words = set(stopwords.words('english'))
+except:
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
 
 def getData(ticker, startDate, endDate):
     print("Querying NewsApi Endpoint for Data")
@@ -107,6 +112,8 @@ def evaluate_sentence(sentence):
     # since some words are "neutral" I have to keep track of the total words that are positive or negative
     valid_word = 0.0
     for word in tokenized_sent:
+        if word in stop_words:
+            continue
         if word in positive_words:
             pos_words += 1
             valid_word += 1
