@@ -75,6 +75,16 @@ def login_to_account():
     return response
 
 
+@get("/account/rename")
+def rename_account():
+    # This function renames the user for UPDATE points
+    print('Rename account starting')
+    oldName = request.query.get('oldName')
+    newName = request.query.get('newName')
+    print('OldName:', oldName, 'NewName:', newName)
+    sql.rename_userdata(oldName, newName)
+
+
 @get("/portfolio/<id>")
 def get_portfolio_data_by_date(id):
     # this function returns the tickers for a given portfolio ID

@@ -113,6 +113,14 @@ def delete_userdata(username):
         print(x)
 
 
+def rename_userdata(oldName, newName):
+    print('SQL rename userdata')
+    e1 = "UPDATE userdata SET username = \'" + newName + "\' WHERE username = \'" + oldName + "\'"
+    e2 = "UPDATE portfolio SET portfolioID = \'" + newName + "\' WHERE portfolioID = \'" + oldName + "\'"
+    cur.execute(e1)
+    cur.execute(e2)
+    
+
 def query_portfolio(portfolioID):
     condition = "portfolioID=\'" + portfolioID + "\'"
     cur.execute("SELECT * FROM portfolio WHERE " + condition)
