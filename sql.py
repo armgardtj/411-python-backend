@@ -253,6 +253,32 @@ def query_login_info(username, password):
     cur.execute(statment)
     return cur.fetchall()
 
+#
+# gets back a list of portfolios and how many tickers
+# each portfolio is looking at
+def query_high_volume_accounts():
+    statment = ("SELECT pr.portfolioID, COUNT(*) AS tickerCount"
+                "FROM portfolio pr "
+                "GROUP BY pr.portfolioID"
+                )
+    cur.execute(statment)
+    return cur.fetchall()
+#
+# gets back a list of companies that have a high average positivity
+#
+def query_positive_companies():
+    statment = ("SELECT stockinfo.companyName "
+                "FROM newsdata nd LEFT JOIN stockinfo si ON nd.ticker = si.ticker "
+                "WHERE AVG(nd.positivity) > .75"
+                "GROUP BY nd.positivity"
+                )
+    cur.execute(statment)
+    return cur.fetchall()
+# SELECT si.corporateName
+# FROM Article a LEFT JOIN StockInfo si ON a.ticker = si.ticker
+# WHERE AVG(positivity) > .5
+# GROUP BY a.postivity
+
 def create_trigger():
     cur.execute("drop trigger if exists main.trg ")
     statment = "CREATE TRIGGER main.trg BEFORE INSERT ON stockprice FOR EACH ROW BEGIN"
