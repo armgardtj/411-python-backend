@@ -283,7 +283,7 @@ def create_trigger():
     cur.execute("drop trigger if exists main.trg ")
     statment = "CREATE TRIGGER main.trg BEFORE INSERT ON stockprice FOR EACH ROW BEGIN"
     statment += " IF (ABS(100*(NEW.close - NEW.open)/(NEW.open)) > 50) "
-    statment += " THEN INSERT INTO bigdays VALUES (\'AAPL\', \'2020-11-05\', 100*(NEW.close - NEW.open)/(NEW.open),"
+    statment += " THEN INSERT INTO bigdays VALUES (NEW.ticker, NEW.priceDate, 100*(NEW.close - NEW.open)/(NEW.open),"
     statment += " (SELECT title FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
     statment += " (SELECT contents FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
     statment += " (SELECT articleDate FROM newsdata WHERE ticker = NEW.ticker AND NEW.priceDate = articleDate LIMIT 1),"
