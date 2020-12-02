@@ -100,9 +100,11 @@ def db_real_insert():
     add_ticker_to_db("AAPL")
     add_ticker_to_db("GOOG")
     add_ticker_to_db("MSFT")
+    add_ticker_to_db("FB")
 
     cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'AAPL\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'GOOG\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'FB\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'MSFT\')")
     cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
 
