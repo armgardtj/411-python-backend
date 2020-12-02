@@ -211,6 +211,20 @@ def get_stockprice(ticker):
     response.body = json.dumps(body)
     return response
 
+@get("/stocks/<ticker>/related")
+def get_related_stocks(ticker):
+    print('Starting GetRelatedStocks')
+    resp = neo4j_411.neo4j_get_related_tickers()
+    body = []
+    for r in resp:
+        print(r)
+        if ticker not in r:
+            continue;
+        for s in r:
+            if s != ticker:
+                body.append(s)
+    response.body = json.dumps(body)
+    return response
 
 @get("/articles")
 def get_articles():
