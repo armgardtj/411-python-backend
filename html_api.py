@@ -226,36 +226,22 @@ def get_related_stocks(ticker):
     response.body = json.dumps(body)
     return response
 
-@get("/articles")
-def get_articles():
-    print("return all articles")
-    articles = sql.query_all_articles()
-    body = []
-    for e in articles:
-        print(e)
-        body.append({
-            'title': e[0],
-            'contents': e[1],
-            'date': e[2].strftime("%Y-%m-%d"),
-            'positivity': e[3],
-            'ticker': e[4],
-            'articleID': e[5]
-        })
-    response.body = json.dumps(body)
-    print('\n\n\nArticles')
-    print(body)
-    return response
-
 
 @get("/articles/<ticker>")
 def get_articles(ticker):
-    start = request.query.get('startDate', None)
-    end = request.query.get('endDate', None)
-    # add queried articles to database
-    newsApiData = getNewsData(ticker, start, end)
-    for article in newsApiData:
-        sql.insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
-                            ticker, article['link'], article['articleID'])
+    start = request.query.get('startDate')
+    end = request.query.get('endDate')
+    if not start or not end:
+        end = sql.query_stockprice_dates()[0][0]
+        start = (end - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+        end = end.strftime("%Y-%m-%d")
+    articles = sql.query_newsdata_by_ticker_and_date(ticker, start, end)
+    if len(articles) == 0:
+        # add queried articles to database
+        newsApiData = getNewsData(ticker, start, end)
+        for article in newsApiData:
+            sql.insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
+                                ticker, article['link'], article['articleID'])
     articles = sql.query_newsdata_by_ticker_and_date(ticker, start, end)
     body = []
     for e in articles:

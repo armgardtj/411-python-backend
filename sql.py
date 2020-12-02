@@ -27,7 +27,7 @@ def db_tear():
 
 def db_init():
     cur.execute(
-        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), link BLOB(255), articleID BIGINT(255), PRIMARY KEY (articleID))")
+        "CREATE TABLE newsdata (title BLOB(255), contents BLOB(65535), articleDate DATE, positivity DOUBLE(255,2), ticker VARCHAR(10), link BLOB(255), articleID BIGINT(255), PRIMARY KEY (articleID, ticker))")
     cur.execute(
         "CREATE TABLE stockprice (ticker VARCHAR(10), open DOUBLE(255,2), close DOUBLE(255,2), low DOUBLE(255,2), high DOUBLE(255,2), priceDate DATE, PRIMARY KEY (ticker, priceDate))")
     cur.execute(
@@ -235,7 +235,7 @@ def query_newsdata(link):
 
 
 def insert_newsdata(title, contents, articleDate, positivity, ticker, link, articleID):
-    print(title, ticker, link, articleID)
+    # print(title, ticker, link, articleID)
     values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\',\'" + link + "\'," + str(articleID) + ")"
     statement = "INSERT IGNORE INTO newsdata VALUES " + values
     cur.execute(statement)

@@ -1,6 +1,6 @@
 import requests
 import csv
-from datetime import datetime
+import datetime as dt
 from polygon import RESTClient
 
 
@@ -10,9 +10,9 @@ def getStockData(from_, to, ticker):
     resp = client.stocks_equities_aggregates(ticker, 1, "day", from_, to, unadjusted=False)
     hist_data = []
     for result in resp.results:
-        dt = datetime.fromtimestamp(result["t"] / 1000.0).date().strftime("%Y-%m-%d")
+        date = (dt.datetime.fromtimestamp(result["t"] / 1000.0).date() + dt.timedelta(days=1)).strftime("%Y-%m-%d")
         sub_data = {}
-        sub_data["date"] = dt
+        sub_data["date"] = date
         sub_data["close"] = result['c']
         sub_data["open"] = result['o']
         sub_data["low"] = result['l']
