@@ -33,10 +33,7 @@ def db_init():
     cur.execute(
         "CREATE TABLE stockinfo (ticker VARCHAR(10), companyName VARCHAR(255), marketCap BIGINT(255), PRIMARY KEY (ticker))")
     cur.execute(
-        "CREATE TABLE portfolio (portfolioID VARCHAR(255), stockTicker VARCHAR(10))")
-        #
-        # portfolioID is just an username from the userdata table that tells us which stocks a user has in their portfolio
-        #
+        "CREATE TABLE portfolio (portfolioID VARCHAR(255), stockTicker VARCHAR(10), PRIMARY KEY (portfolioID, stockTicker))")
     cur.execute(
         "CREATE TABLE userdata (username VARCHAR(255), password VARCHAR(255), PRIMARY KEY (username))")
 
@@ -166,7 +163,7 @@ def query_portfolio(portfolioID):
 
 def insert_portfolio(portfolioID, stockTicker):
     values = "(\'" + portfolioID + "\',\'" + stockTicker + "\')"
-    cur.execute("INSERT INTO portfolio VALUES " + values)
+    cur.execute("INSERT IGNORE INTO portfolio VALUES " + values)
     cur.execute("SELECT * FROM portfolio")
     for x in cur:
         print(x)
