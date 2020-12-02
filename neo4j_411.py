@@ -160,7 +160,7 @@ def fake_insert():
     title = "Apple and Google shares good"
 
     ticker = "AAPL"
-    ticker = "GOOGL"
+    ticker = "GOOG"
     # ticker = "nothing"
     # ret = neo4j_get_high_impact_articles()
     # print(ret)
@@ -168,10 +168,10 @@ def fake_insert():
     # for r in ret:
     #     print(r)
     neo4j_insert_ticker(ticker="AAPL")
-    neo4j_insert_ticker(ticker="GOOGL")
+    neo4j_insert_ticker(ticker="GOOG")
     neo4j_insert_article(title="Apple shares good", ticker="AAPL")
     neo4j_insert_article(title="Apple and Google shares good", ticker="AAPL")
-    neo4j_insert_article(title="Apple and Google shares good", ticker="GOOGL")
+    neo4j_insert_article(title="Apple and Google shares good", ticker="GOOG")
     # ret = neo4j_get_related_tickers()
     # print(ret.peek())
     # for r in ret:
