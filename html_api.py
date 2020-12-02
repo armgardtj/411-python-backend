@@ -6,6 +6,7 @@ import datetime
 import stock_api
 
 from news_api import getData as getNewsData
+import neo4j_411
 
 portfolioSet = set()
 articleSet = set()
@@ -111,8 +112,8 @@ def get_portfolio_data_by_date(id):
 
 
 @get("/portfolio/<id>/add")
-def add_ticker_to_portfolio(id):
-    ticker = request.query.get('ticker')
+def add_ticker_to_portfolio(id, tickerParam=None):
+    ticker = tickerParam if tickerParam else request.query.get('ticker')
     company = sql.query_stockinfo(ticker)
     if len(company) == 0:  # need to query stock api
         success = add_ticker_to_db(ticker)
@@ -143,15 +144,14 @@ def add_ticker_to_db(ticker):
     if not stock_info:
         return False
     sql.insert_stockinfo(stock_info['Ticker'], stock_info['Name'], stock_info['MarketCap'])
+    #neo4j_411.neo4j_insert_ticker(stock_info['Ticker'])
     end_date = sql.query_stockprice_dates()[0][0] + datetime.timedelta(days=1)
-
     start_date = end_date - datetime.timedelta(days=30)  
     newsApiData = getNewsData(ticker, start_date, end_date)
     for article in newsApiData:
         sql.insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
                             ticker, article['link'], article['articleID'])
-
-
+        #neo4j_411.neo4j_insert_article(article['title'], stock_info['Ticker'])
     stock_data = stock_api.getStockData(start_date, end_date, ticker)
     for d in stock_data:
         sql.insert_stockprice(ticker, d['open'], d['close'], d['low'], d['high'], d['date'])
@@ -281,6 +281,14 @@ def get_big_articles(ticker):
     response.body = json.dumps(body)
     return response
 
+@get("/neo4j")
+def get_neo4j():
+    ticker = request.query.get('ticker')
+    print(neo4j_411.neo4j_get_tickers())
+    print(neo4j_411.neo4j_get_articles())
+    print(neo4j_411.neo4j_get_related_tickers())
 
-
+neo4j_411.fake_insert()
+print(neo4j_411.neo4j_get_related_tickers())
 run(host='localhost', port=8080)
+

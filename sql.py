@@ -1,6 +1,8 @@
 import mysql.connector
-
-#from neo4j_411 import neo4j_insert_article, neo4j_insert_ticker
+import stock_api
+import neo4j_411
+import datetime
+from news_api import getData as getNewsData
 
 db = mysql.connector.connect(
     host="localhost",
@@ -91,6 +93,39 @@ def db_fake_insert():
     # cur.execute("INSERT INTO newsdata VALUES (\'Adam\', \'Bowl? Bowl? Bowl?\', \'2020-10-19\', .8, \'MSFT\')")
 
 
+def db_real_insert():
+    cur.execute("INSERT INTO userdata VALUES (\'test1\', \'pass\')")
+    cur.execute("INSERT INTO userdata VALUES (\'test2\', \'pass2\')")
+
+    add_ticker_to_db("AAPL")
+    add_ticker_to_db("GOOG")
+    add_ticker_to_db("MSFT")
+
+    cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'AAPL\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test1\', \'GOOG\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'MSFT\')")
+    cur.execute("INSERT INTO portfolio VALUES (\'test2\', \'GOOG\')")
+
+
+def add_ticker_to_db(ticker):
+    stock_info = stock_api.getStockInfo(ticker)
+    if not stock_info:
+        return False
+    insert_stockinfo(stock_info['Ticker'], stock_info['Name'], stock_info['MarketCap'])
+    neo4j_411.neo4j_insert_ticker(stock_info['Ticker'])
+    end_date = datetime.date.today()
+    start_date = end_date - datetime.timedelta(days=30)
+    newsApiData = getNewsData(ticker, start_date, end_date)
+    for article in newsApiData:
+        insert_newsdata(article['title'], article['text'], article['articleDate'][0:10], str(article['sentiment']),
+                                ticker, article['link'], article['articleID'])
+        neo4j_411.neo4j_insert_article(article['title'], stock_info['Ticker'])
+    stock_data = stock_api.getStockData(start_date, end_date, ticker)
+    for d in stock_data:
+        insert_stockprice(ticker, d['open'], d['close'], d['low'], d['high'], d['date'])
+    return True
+
+
 def query_userdata(username):
     condition = "username=\'" + username + "\'"
     cur.execute("SELECT * FROM userdata WHERE " + condition)
@@ -119,7 +154,7 @@ def rename_userdata(oldName, newName):
     e2 = "UPDATE portfolio SET portfolioID = \'" + newName + "\' WHERE portfolioID = \'" + oldName + "\'"
     cur.execute(e1)
     cur.execute(e2)
-    
+
 
 def query_portfolio(portfolioID):
     condition = "portfolioID=\'" + portfolioID + "\'"
@@ -201,11 +236,12 @@ def query_newsdata(link):
 
 
 def insert_newsdata(title, contents, articleDate, positivity, ticker, link, articleID):
+    print(title, ticker, link, articleID)
     values = "(\"" + title + "\",\"" + contents + "\",\'" + articleDate + "\'," + positivity + ",\'" + ticker + "\',\'" + link + "\'," + str(articleID) + ")"
     statement = "INSERT IGNORE INTO newsdata VALUES " + values
     cur.execute(statement)
     cur.execute("SELECT * FROM newsdata")
-    #neo4j_insert_article(title, ticker)
+    neo4j_411.neo4j_insert_article(title, ticker)
     # for x in cur:
     #     print(x)
 
@@ -310,7 +346,7 @@ def query_bigdays(tickers):
 db_tear()
 db_init()
 create_trigger()
-db_fake_insert()
+db_real_insert()
 
 
 #print(query_stockprice("AAPL"))

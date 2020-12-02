@@ -93,6 +93,36 @@ def neo4j_get_high_impact_articles():
 #
 #
 #
+def neo4j_get_tickers():
+    with driver.session() as session:
+        result = session.run("MATCH (t1:Ticker) "
+                             "RETURN t1.ticker")
+        print("neo4j_get_tickers - query success, processing data")
+        ret = []
+        for record in result:
+            # print(record.values())
+            new_set = set(record.values())
+            if new_set not in ret:
+                ret.append(new_set)
+        info = result.consume()
+        print("neo4j_get_tickers - returning")
+        return ret
+
+def neo4j_get_articles():
+    with driver.session() as session:
+        result = session.run("MATCH (a:Article) "
+                             "RETURN a.title")
+        print("neo4j_get_tickers - query success, processing data")
+        ret = []
+        for record in result:
+            # print(record.values())
+            new_set = set(record.values())
+            if new_set not in ret:
+                ret.append(new_set)
+        info = result.consume()
+        print("neo4j_get_tickers - returning")
+        return ret
+
 def neo4j_get_related_tickers():
     print("neo4j_get_related_tickers - start")
     with driver.session() as session:
@@ -124,8 +154,7 @@ def neo4j_get_related_tickers():
 #
 #
 
-
-if __name__ == "__main__":
+def fake_insert():
 
     # title = "Apple shares good"
     title = "Apple and Google shares good"
@@ -164,3 +193,4 @@ if __name__ == "__main__":
     # greeter = HelloWorldExample("bolt://localhost:7687", "neo4j", "password")
     # greeter.print_greeting("hello, world")
     # greeter.close()
+

@@ -26,6 +26,7 @@ except:
     stop_words = set(stopwords.words('english'))
 
 def getData(ticker, startDate, endDate):
+    print(ticker)
     print("Querying NewsApi Endpoint for Data")
 
     url = "https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/search/NewsSearchAPI"
@@ -41,7 +42,7 @@ def getData(ticker, startDate, endDate):
     }
     response = requests.request("GET", url, headers=headers, params=params)
     d = response.json()
-    # print(d)
+    print(d)
 
     all_articles_from_api = d['value']
     # print("-------------------------------------------------------------------")
@@ -138,9 +139,9 @@ def evaluate_sentence(sentence):
 
 
 if __name__ == '__main__':
-    ticker = "AAPL"
+    ticker = "DIS"
     startDate = "2020-10-05"
-    endDate = "2020-10-15"
+    endDate = "2020-10-30"
     data_return = getData(ticker, startDate, endDate)
     print(data_return)
     print('--------------------------------------------------------------------------------------------------------')
